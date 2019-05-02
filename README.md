@@ -1,9 +1,9 @@
-# MMD
+# MMDR
 Microbiome Marker Discovery
 
 Created by Hoan Nguyen, Weinstock Group, The Jackson Laboratory
 
-git clone https://github.com/bmhoan/MMD.git
+git clone https://github.com/bmhoan/MMDR.git
 
 R install 
 
