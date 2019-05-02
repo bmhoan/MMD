@@ -1,0 +1,11 @@
+Package: MMDRpipeline.version.R02
+Type: Package
+Title: Analysis of OTU and Functional 16S data
+Version: 0.2.0
+Authors@R: c(person("Hoan","xhshshsh", email = "hoan@jax.org", role = c("aut", "cre")),person("A", "B", email = "a@.com", role="aut"))
+Description: DIFFERENTIAL ANALYSIS, normalization and network analysis of micrbiome,
+License: GPL-2
+LazyData: TRUE
+Depends: ggplot2, phyloseq,matrixStats
+Imports: pheatmap
+RoxygenNote: 6.1.1
