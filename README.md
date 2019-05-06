@@ -1,5 +1,5 @@
 # MMDR
-Microbiome Marker Discovery
+Microbiome Marker Discovery: Variability and Differential Analysis 
 
 Created by Hoan Nguyen, Weinstock Group, The Jackson Laboratory
 
@@ -17,7 +17,7 @@ This package contains functions for handling, quality control and analyzation of
 
 -Normalization  and transformation methods
 
--Differential abundance analysis
+-Differential Abundance analysis
 
 -Correlation and Variable Selections 
 
