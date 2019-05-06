@@ -1,0 +1,117 @@
+ 
+ #' Function to generate PCA plot of abundance table : OTU,GENE,KO
+ #'
+ #' @param abund.tab otu/gene table as matrix
+ #' @param sp.meta sample metadata as.matrix (ID,NICKNAME,CONDITION,SUBJECT,CATEGORY)
+ #' @param groups list of selected biological condition for plot
+ #' @param meanCountCutOff The mean count value a gene/otu must have to be considered for the plot.
+ #' @return PCA plot
+ #' @examples
+ #' AbundPcaPlot(OTUDATA$otu.tab,OTUDATA$sp.meta,groups=c('ain','protein','cholic'))
+ #' AbundPcaPlot(OTUDATA$otu.tab,OTUDATA$sp.meta,groups=c('protein','cholic'))
+ #' AbundPcaPlot(KODATA$ko.tab,OTUDATA$sp.meta,groups=c('protein','cholic'))
+ 
+ AbundPcaPlot = function(abund.tab,sp.meta, meanCountCutOff=1,groups="ALL",title = "Title"){
+   
+ 
+ 
+   listall1=rownames(sp.meta)
+   listall2=colnames(abund.tab)
+   listall=intersect(listall1,listall2)
+ 
+   abund.tab=abund.tab[,listall]
+ 
+   otu.mean <- apply(X = abund.tab, MARGIN = 1, FUN = mean)
+   otu.filter <- abund.tab[otu.mean >= meanCountCutOff,]
+   otu=t(otu.filter)
+ 
+ 
+   if (groups=="ALL") 
+   {
+  condition=sp.meta[,2]
+   pca=prcomp(log(otu+1))
+   data_df <- data.frame(pc_1 = pca$x[,1], pc_2 = pca$x[,2], c = condition)
+   }
+   else
+   {
+     temp=sp.meta[sp.meta$CONDITION %in% groups,]
+ mylist=rownames(temp)
+ mycondition=temp[,2]
+ otu=otu[mylist,]
+ pca=prcomp(log(otu+1))
+   data_df <- data.frame(pc_1 = pca$x[,1], pc_2 = pca$x[,2], c = mycondition)
+ 
+   }
+   p <-ggplot(data_df, aes(pc_1,pc_2)) + geom_point(aes(color=c,shape=c)) + labs(title = title)
+   p
+ }
+ 
+ 
+ 
+ #' Function to create a heatmap  of abundance data (ROWs:OTU,GENE,KO, COLS: SAMPLE NAMES)  
+ #'
+ #' @param abund.tab abundance table as.matrix
+ #' @param sp.meta sample metadata as.matrix (ID,NICKNAME,CONDITION,SUBJECT,CATEGORY)
+ #' @param groups list of biological condition(Healthy vs Disease)
+ #' @return Heatmap plot
+ #' @examples
+ #' AbundPlotHeatmap(OTUDATA$otu.tab,OTUDATA$sp.meta, meanCountCutOff = 50, groups=c('protein','cholic'),fontsize_row=5,fontsize_col=5)
+ 
+ AbundPlotHeatmap <- function(abund.tab,sp.meta, meanCountCutOff = 1, groups="ALL",fontsize_row=5,fontsize_col=5) {
+ 
+ 
+	listall1=rownames(sp.meta)
+	listall2=colnames(abund.tab)
+	listall=intersect(listall1,listall2)
+	counts=abund.tab[,listall]
+ 
+	# Remove counts with too low count
+	counts.mean <- apply(X=counts, MARGIN = 1, FUN = mean)
+	expressed <- counts.mean >= meanCountCutOff
+	counts <- counts[expressed,]
+ 
+	log2.counts <- log2(counts + 1)
+ 
+	if (groups=="ALL") {
+		annot <- data.frame(Group = sp.meta$CONDITION)
+		rownames(annot) <- rownames(sp.meta)
+	} else
+	{
+		temp=sp.meta[sp.meta$CONDITION %in% groups,]
+		mylist=rownames(temp)
+		annot <- data.frame(Group =temp[,2])
+		rownames(annot) <- rownames(temp)
+		log2.counts=log2.counts[,mylist]
+ 
+	}
+	pheatmap(log2.counts, scale="row", show_rownames = F, show_colnames = T, annotation_col = annot,fontsize_row=fontsize_row,fontsize_col=fontsize_col)
+ 
+ }
+ 
+ #  VolcanoPlot(diff,fdr=0.05,fc=4,title="BEN1 KO Differential Abundance: cholic" %->% "protein ")
+ 
+ 
+ VolcanoPlot <-function(diffdata, fdr=0.05, fc=2,title="Differential Abundance ",top=40,label_size=5) {
+ 	NS_FC=paste0("FC = ",fc)
+	NS_FDR=paste0("P_adj(for NS) = ",fdr)
+        title=paste0(title," ; ",NS_FC," ", NS_FDR)
+ 
+ 	ggmaplot(diffdata, 
+	main = title,
+	fdr = fdr,
+	fc =fc,
+	size = 1,
+	palette = c("#B31B21", "#1465AC", "darkgray"),
+	genenames = as.vector(rownames(diffdata)),
+	legend = "top", 
+	top = top,
+	font.label = c("bold", label_size),
+	font.legend = "bold",
+	font.main = "bold",
+	xlab="Log mean abundance of two groups",
+	ylab="Log2 fold-change of mean abundance ",
+	col=rownames(diffdata),
+	ggtheme = ggplot2::theme_minimal()
+	)
+ 
+ }
