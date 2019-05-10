@@ -228,13 +228,13 @@ library(vegan)
    log2.counts <- log2(counts + 1)
  
    if (groups=="ALL") {
-	annot <- data.frame(Group = sp.meta$CONDITION)
+	annot <- data.frame(Group = sp.meta$CONDITION,Subject= sp.meta$SUBJECT)
 	rownames(annot) <- rownames(sp.meta)
    } else
    {
 	temp=sp.meta[sp.meta$CONDITION %in% groups,]
 	mylist=rownames(temp)
-	annot <- data.frame(Group =temp$CONDITION)
+	annot <- data.frame(Group =temp$CONDITION,Subject= sp.meta$SUBJECT)
 	rownames(annot) <- rownames(temp)
 	log2.counts=log2.counts[,mylist]
  
