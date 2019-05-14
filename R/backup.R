@@ -48,6 +48,7 @@ library(vegan)
  
  
  
+ 
  ################ PART B: PLOT : PCA, HEATMAP, BOXPLOT, ETETETEET  ###########################
  
  
@@ -211,52 +212,64 @@ library(vegan)
  #' @examples
  #' AbundPlotHeatmap(OTUDATA$otu.tab,OTUDATA$sp.meta, meanCountCutOff = 50, groups=c('protein','cholic'),fontsize_row=5,fontsize_col=5)
  
- AbundPlotHeatmap <- function(abund.tab,sp.meta, meanCountCutOff = 1, groups="ALL",fontsize_row=5,fontsize_col=5) {
+ AbundPlotHeatmap <- function(abund.tab,sp.meta, meanCountCutOff = 1, groups="ALL",fontsize_row=5,fontsize_col=5, id_list=NULL) {
  
+ 	# merge samle names from abundance table and metadata
+	listall1=rownames(sp.meta)
+	listall2=colnames(abund.tab)
+	listall=intersect(listall1,listall2)
+	counts=abund.tab[,listall]
+
+	# Remove counts with too low count
+	counts.mean <- apply(X=counts, MARGIN = 1, FUN = mean)
+	expressed <- counts.mean >= meanCountCutOff
+	counts <- counts[expressed,]
  
-   listall1=rownames(sp.meta)
-   listall2=colnames(abund.tab)
-   listall=intersect(listall1,listall2)
+
+	# if gene/otu list (id_list) is not null, then, create heatmap with only id_list
+	if (!is.null(id_list)) {
+		k1=rownames(abund.tab)
+		k2=rownames(id_list)
+		k=intersect(k1,k2)
+		counts=counts[k,]
+		id_list=id_list[k,]
+		rownames(counts)=paste(rownames(counts),"_",id_list$GBM_NAME)
+	}
+
+
+	log2.counts <- log2(counts + 1)
  
-   counts=abund.tab[,listall]
+	if (groups=="ALL") {
+		annot <- data.frame(Group = sp.meta$CONDITION,Subject= sp.meta$SUBJECT)
+		rownames(annot) <- rownames(sp.meta)
+	} else
+	{
+		temp=sp.meta[sp.meta$CONDITION %in% groups,]
+		mylist=rownames(temp)
+		annot <- data.frame(Group =temp$CONDITION,Subject= sp.meta$SUBJECT)
+		rownames(annot) <- rownames(temp)
+		log2.counts=log2.counts[,mylist]
  
-   # Remove counts with too low count
-   counts.mean <- apply(X=counts, MARGIN = 1, FUN = mean)
-   expressed <- counts.mean >= meanCountCutOff
-   counts <- counts[expressed,]
- 
-   log2.counts <- log2(counts + 1)
- 
-   if (groups=="ALL") {
-	annot <- data.frame(Group = sp.meta$CONDITION,Subject= sp.meta$SUBJECT)
-	rownames(annot) <- rownames(sp.meta)
-   } else
-   {
-	temp=sp.meta[sp.meta$CONDITION %in% groups,]
-	mylist=rownames(temp)
-	annot <- data.frame(Group =temp$CONDITION,Subject= sp.meta$SUBJECT)
-	rownames(annot) <- rownames(temp)
-	log2.counts=log2.counts[,mylist]
- 
-   }
-   pheatmap(log2.counts, scale="row", show_rownames = F, show_colnames = T, annotation_col = annot,fontsize_row=fontsize_row,fontsize_col=fontsize_col)
+	}
+	pheatmap(log2.counts, scale="row", show_rownames = F, show_colnames = T, annotation_col = annot,fontsize_row=fontsize_row,fontsize_col=fontsize_col)
  
  }
  
  #  VolcanoPlot(diff,fdr=0.05,fc=4,title="BEN1 KO Differential Abundance: cholic" %->% "protein ")
  
  
- VolcanoPlot <-function(diffdata, fdr=0.05, fc=2,title="Differential Abundance ",top=40,label_size=5) {
+ VolcanoPlot <-function(diffdata,id_list=NULL, fdr=0.05, fc=2,title="Differential Abundance ",top=10,label_size=5) {
  	
-	diffdata$log2FoldChange=as.numeric(diffdata$log2FoldChange)
-	diffdata$pvalue=as.numeric(diffdata$pvalue)
-	diffdata$padj=as.numeric(diffdata$padj)
+	#diffdata$log2FoldChange=as.numeric(diffdata$log2FoldChange)
+	#diffdata$pvalue=as.numeric(diffdata$pvalue)
+	#diffdata$padj=as.numeric(diffdata$padj)
 
 	NS_FC=paste0("FC = ",fc)
-	NS_FDR=paste0("P_adj(for NS) = ",fdr)
-        title=paste0(title," ; ",NS_FC," ", NS_FDR)
+	NS_FDR=paste0("P_adj = ",fdr)
+        title=paste0(title," ; ",NS_FC," ", NS_FDR, " top=",top)
  
- 	ggmaplot(diffdata, 
+ 	ggmaplot(diffdata,
+	id_list,
 	main = title,
 	fdr = fdr,
 	fc =fc,
