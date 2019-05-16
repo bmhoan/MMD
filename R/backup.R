@@ -255,8 +255,13 @@ library(vegan)
  
  }
  
- #  VolcanoPlot(diff,fdr=0.05,fc=4,title="BEN1 KO Differential Abundance: cholic" %->% "protein ")
- 
+
+ #' This MAplot typically plots some measure of effect on the y-axis (fold change of gene, otu) ,
+ #' the statistical significance with colored point, 
+ #' the mean of abundance or  statistical significance  on the x-axis ( log2 of mean abundance or log10 of p-value). 
+ #' Genes/OTUs  that are highly dysregulated are farther to the left and right sides,
+ #'  while highly mean abundance/significant changes appear higher on the plot.
+ #' VolcanoPlot(diff,fdr=0.05,fc=4,title="BEN1 KO Differential Abundance: cholic" %->% "protein ")
  
  VolcanoPlot <-function(diffdata,id_list=NULL, fdr=0.05, fc=2,title="Differential Abundance ",top=10,label_size=5) {
  	
