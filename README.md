@@ -1,7 +1,7 @@
 # MMDR
 Microbiome Marker Discovery: Variability and Differential Analysis : In contructions!! 
 
-Created by Dong Binh, Weinstock Group, The Jackson Laboratory
+Created by Dong Binh, just for testing 
 
 git clone https://github.com/bmhoan/MMDR.git
 
